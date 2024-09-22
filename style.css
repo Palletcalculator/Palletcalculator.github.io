@@ -1,0 +1,194 @@
+/* Загальний стиль для тіла сторінки */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Сучасний стиль заголовка */
+.header {
+    background-color: #1E88E5; /* насичений синій */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 28px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-bottom: 4px solid #1565C0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header h1 {
+    margin: 0;
+    padding-left: 10px;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.icon {
+    font-size: 28px;
+    margin-right: 10px;
+}
+
+/* Сучасний стиль для форми */
+form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin: 30px auto;
+    max-width: 600px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+form h2 {
+    color: #1E88E5; /* темно-синій заголовок */
+    font-size: 24px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+form input,
+form select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border 0.3s;
+}
+
+form input:focus,
+form select:focus {
+    border-color: #1E88E5;
+    outline: none;
+}
+
+form button {
+    background-color: #43A047; /* зелений фон для кнопки */
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s;
+}
+
+form button:hover {
+    background-color: #388E3C; /* темніший зелений */
+}
+
+/* Сучасний стиль для результатів */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error {
+    color: #E53935; /* червоний для помилок */
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    padding: 8px 0;
+}
+
+/* Сучасний стиль для таблиць */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #1E88E5; /* синій фон для заголовків таблиці */
+    color: white;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+td {
+    background-color: #f9f9f9;
+}
+
+tr:nth-child(even) td {
+    background-color: #f1f1f1;
+}
+
+/* Стиль для посилань */
+a {
+    color: #1E88E5;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Сучасний стиль для палет */
+.pallet {
+    position: absolute;
+    border: 2px solid #000;
+    margin: 1px; /* Мінімальний відступ між палетами */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Стиль для палет, що всередині трейлера або торкаються його меж */
+.pallet-inside {
+    background-color: #43A047; /* зелений для всередині трейлера */
+    color: white;
+    font-weight: bold;
+}
+
+/* Стиль для палет, що виходять за межі трейлера */
+.pallet-outside {
+    background-color: #E53935; /* червоний для поза межами трейлера */
+    color: white;
+    font-weight: bold;
+}
+
+/* Стиль для кнопок та посилань */
+a {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #1E88E5;
+    color: white;
+    border-radius: 6px;
+    text-transform: uppercase;
+    margin-top: 20px;
+}
+
+a:hover {
+    background-color: #1565C0;
+}
