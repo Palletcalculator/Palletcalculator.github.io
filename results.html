@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .truck-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .truck {
+            position: relative;
+        }
+
+        .truck-top-view {
+            background-color: #d3d3d3;
+            position: relative;
+            border: 1px solid black;
+            box-sizing: border-box;
+        }
+
+        .pallet {
+            margin: 0px;
+            position: absolute;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .pallet-inside {
+            background-color: green;
+        }
+
+        .pallet-outside {
+            background-color: red;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .info h2 {
+            margin: 0 0 10px;
+            color: #007bff;
+        }
+
+        .info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .info .pallet-group {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .info .pallet-group p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        .accepted {
+            color: green;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .rejected {
+            color: red;
+            font-weight: bold;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Results</h1>
+        <div class="truck-container">
+            <div class="truck">
+                <div class="truck-top-view" id="truck-top-view"></div>
+            </div>
+
+            <div class="info">
+                <h2>Trailer Information</h2>
+                <p><strong>Length:</strong> {{ truck.length }} {{ truck.length_unit }}</p>
+                <p><strong>Width:</strong> {{ truck.width }} {{ truck.width_unit }}</p>
+                <p><strong>Weight:</strong> {{ truck.weight }} kg</p>
+
+                <h2>Pallet Information</h2>
+
+                {% for pallet in pallets %}
+                <div class="pallet-group">
+                    <p><strong>Pallet {{ loop.index }} Length:</strong> {{ pallet.length }} {{ pallet.length_unit }}</p>
+                    <p><strong>Pallet {{ loop.index }} Width:</strong> {{ pallet.width }} {{ pallet.width_unit }}</p>
+                    <p><strong>Pallet {{ loop.index }} Weight:</strong> {{ pallet.weight }} {{ pallet.weight_unit }}</p>
+                </div>
+                {% endfor %}
+                
+                <p><strong>Pallet Count:</strong> {{ pallet_count }}</p>
+
+                {% if is_valid %}
+                <p class="accepted">Вага і розміри палет прийнято.</p>
+                {% else %}
+                    {% if weight_exceeded %}
+                    <p class="rejected">Не прийнято - вага палет перевищує вагу трейлера.</p>
+                    {% endif %}
+                    
+                    {% if size_exceeded %}
+                    <p class="rejected">Не прийнято - палета виходить за межі трейлера або має невідповідні розміри.</p>
+                    {% endif %}
+                    
+                    {% if weight_exceeded and size_exceeded %}
+                    <p class="rejected">Не прийнято - палети перевищують вагу та виходять за межі трейлера.</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{{ url_for('index') }}">Back to form</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const truck = {
+                length: {{ truck.length }},
+                width: {{ truck.width }}
+            };
+
+            const pallets = {{ pallets | tojson }};
+            const topView = document.getElementById('truck-top-view');
+
+            // Переводимо розміри вантажівки в пікселі (дюйми -> пікселі)
+            const truckWidthInPixels = truck.width * 2.54;
+            const truckLengthInPixels = truck.length * 2.54;
+            topView.style.width = truckWidthInPixels + 'px';
+            topView.style.height = truckLengthInPixels + 'px';
+
+            let rowHeight = 0; // висота ряду для переміщення вниз
+
+            // Збережемо позиції розміщених палет, щоб уникнути накладання
+            const placedPallets = [];
+
+            // Функція перевірки на накладання палет
+            function isOverlapping(newPalletX, newPalletY, newPalletWidth, newPalletHeight) {
+                return placedPallets.some(p => {
+                    return (
+                        newPalletX < p.x + p.width &&
+                        newPalletX + newPalletWidth > p.x &&
+                        newPalletY < p.y + p.height &&
+                        newPalletY + newPalletHeight > p.y
+                    );
+                });
+            }
+
+            // Функція пошуку найближчого доступного місця для розміщення палети
+            function findClosestSpace(palletWidth, palletHeight) {
+                for (let y = 0; y <= truckLengthInPixels - palletHeight; y++) {
+                    for (let x = 0; x <= truckWidthInPixels - palletWidth; x++) {
+                        if (!isOverlapping(x, y, palletWidth, palletHeight)) {
+                            return { x, y };
+                        }
+                    }
+                }
+                return null;
+            }
+
+            pallets.forEach((pallet, index) => {
+                const palletDiv = document.createElement('div');
+
+                // Конвертація розмірів палет у пікселі
+                const palletWidth = (pallet.width_unit === 'cm' ? pallet.width : pallet.width * 2.54);
+                const palletHeight = (pallet.length_unit === 'cm' ? pallet.length : pallet.length * 2.54);
+
+                // Знайдемо найближче доступне місце для цієї палети
+                let closestSpace = findClosestSpace(palletWidth, palletHeight);
+
+                if (closestSpace) {
+                    let { x, y } = closestSpace;
+
+                    // Стилі для палет
+                    palletDiv.style.position = 'absolute';
+                    palletDiv.style.border = '0.1px solid #000';
+                    palletDiv.style.width = palletWidth + 'px';
+                    palletDiv.style.height = palletHeight + 'px';
+                    palletDiv.style.left = x + 'px';
+                    palletDiv.style.top = y + 'px';
+                    palletDiv.textContent = (index + 1);
+
+                    // Записуємо позиції палети
+                    placedPallets.push({ x, y, width: palletWidth, height: palletHeight });
+
+                    rowHeight = Math.max(rowHeight, palletHeight);
+
+                    const truckRight = truckWidthInPixels;
+                    const truckBottom = truckLengthInPixels;
+
+                    if (x + palletWidth <= truckRight && y + palletHeight <= truckBottom) {
+                        palletDiv.className = 'pallet pallet-inside';
+                    } else {
+                        palletDiv.className = 'pallet pallet-outside';
+                    }
+
+                    topView.appendChild(palletDiv);
+                } else {
+                    console.error("Не вдалося знайти місце для палети " + (index + 1));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
